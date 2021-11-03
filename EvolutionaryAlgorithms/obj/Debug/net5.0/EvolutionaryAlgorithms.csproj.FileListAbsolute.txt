@@ -1,0 +1,16 @@
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.exe
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.deps.json
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.runtimeconfig.json
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.runtimeconfig.dev.json
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.dll
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\ref\EvolutionaryAlgorithms.dll
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\bin\Debug\net5.0\EvolutionaryAlgorithms.pdb
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.csproj.AssemblyReference.cache
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.AssemblyInfoInputs.cache
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.AssemblyInfo.cs
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.csproj.CoreCompileInputs.cache
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.dll
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\ref\EvolutionaryAlgorithms.dll
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.pdb
+C:\Users\Alex\source\repos\EvolutionaryAlgorithms\EvolutionaryAlgorithms\obj\Debug\net5.0\EvolutionaryAlgorithms.genruntimeconfig.cache
