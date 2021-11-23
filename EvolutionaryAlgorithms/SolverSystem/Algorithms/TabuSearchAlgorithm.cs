@@ -31,6 +31,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         int worstLocalFitness = int.MinValue;
 
+        private readonly Random _random;
+
         public TabuSearchAlgorithm(int numberOfRuns, int numberOfIterations, int tabuListSize, int numberOfNeighbors)
         {
             NumberOfRuns = numberOfRuns;
@@ -39,6 +41,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             _numberOfNeighbors = numberOfNeighbors;
 
             BestFitnesses = new List<int>();
+
+            _random = new Random();
 
             bestFitnessesInPopulations = new List<int>();
             worstFitnessesInPopulations = new List<int>();
@@ -146,7 +150,10 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             for (int i = 0; i < _numberOfNeighbors; i++)
             {
                 var currentSolutionClone = new List<int>(currentSolution);
+
                 inversion(currentSolutionClone);
+                //swapMutation(currentSolutionClone);
+
                 repairSolution(currentSolutionClone);
                 neighbors.Add(currentSolutionClone);
             }
@@ -255,7 +262,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
 
             List<int> inversionPart;
-            Random random = new Random();
+            //Random random = new Random();
             int firstRandomIndex;
             int secondRandomIndex;
 
@@ -263,14 +270,37 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             solution.RemoveAll(n => n == DepotNode);
             //
 
-            firstRandomIndex = random.Next(0, solution.Count - 1);
-            secondRandomIndex = random.Next(firstRandomIndex + 1, solution.Count);
+            firstRandomIndex = _random.Next(0, solution.Count - 1);
+            secondRandomIndex = _random.Next(firstRandomIndex + 1, solution.Count);
 
             inversionPart = solution.GetRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
             solution.RemoveRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
             inversionPart.Reverse();
 
             solution.InsertRange(firstRandomIndex, inversionPart);
+        }
+
+        private void swapMutation(List<int> solution)
+        {
+            //Random random = new Random();
+            int randomIndex = 0;
+            int secondRandomIndex;
+            int tempCityNode;
+
+            solution.RemoveAll(n => n == DepotNode);
+
+            for (int index = 0; index < solution.Count(); index++)
+            {
+                if (_random.NextDouble() < 0.04)
+                {
+                    randomIndex = _random.Next(0, solution.Count());
+                    tempCityNode = solution[randomIndex];
+                    solution[randomIndex] = solution[index];
+                    solution[index] = tempCityNode;
+                }
+            }
+
+            //repairIndividual(individual);
         }
 
         private void repairSolution(List<int> solution)

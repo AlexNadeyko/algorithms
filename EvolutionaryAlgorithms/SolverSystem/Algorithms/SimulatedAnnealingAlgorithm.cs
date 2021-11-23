@@ -57,6 +57,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                 {
                     var mutant = new List<int>(_currentSolution);
                     inversion(mutant);
+                    //swapMutation(mutant);
                     repairSolution(mutant);
 
                     var mutantFitness = calculateFitness(mutant);
@@ -143,7 +144,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         private void inversion(List<int> solution)
         {
             List<int> inversionPart;
-            Random random = new Random();
+            //Random random = new Random();
             int firstRandomIndex;
             int secondRandomIndex;
 
@@ -151,14 +152,37 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             solution.RemoveAll(n => n == DepotNode);
             //
 
-            firstRandomIndex = random.Next(0, solution.Count - 1);
-            secondRandomIndex = random.Next(firstRandomIndex + 1, solution.Count);
+            firstRandomIndex = _random.Next(0, solution.Count - 1);
+            secondRandomIndex = _random.Next(firstRandomIndex + 1, solution.Count);
 
             inversionPart = solution.GetRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
             solution.RemoveRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
             inversionPart.Reverse();
 
             solution.InsertRange(firstRandomIndex, inversionPart);
+        }
+
+        private void swapMutation(List<int> solution)
+        {
+            //Random random = new Random();
+            int randomIndex = 0;
+            int secondRandomIndex;
+            int tempCityNode;
+
+            solution.RemoveAll(n => n == DepotNode);
+
+            for (int index = 0; index < solution.Count(); index++)
+            {
+                if (_random.NextDouble() < 0.01)
+                {
+                    randomIndex = _random.Next(0, solution.Count());
+                    tempCityNode = solution[randomIndex];
+                    solution[randomIndex] = solution[index];
+                    solution[index] = tempCityNode;
+                }
+            }
+
+            //repairIndividual(individual);
         }
 
         private void repairSolution(List<int> solution)
@@ -184,27 +208,6 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             }
 
             solution.Add(DepotNode);
-        }
-
-        private (List<int>, int) getMutant()
-        {
-            var locker = new object();
-            var neighbours = new List<(List<int> solution, int fitness)>(8);
-            Parallel.For(0, 8, _ =>
-            {
-                var mutant = new List<int>(_currentSolution);
-                inversion(mutant);
-                repairSolution(mutant);
-                var mutantFitness = calculateFitness(mutant);
-
-                //lock (locker) 
-                //{
-                neighbours.Add((mutant, mutantFitness));
-                //}
-            });
-
-            return neighbours.OrderBy(n => n.fitness)
-                .First();
         }
     }
 }

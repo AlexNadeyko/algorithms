@@ -41,6 +41,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         public List<double> averageFitnessesInPopulations;
 
+        private readonly Random _random;
+
 
         public GeneticAlgorithm(int numberOfRuns, int numberOfPopulations, int numberOfIndividuals, double mutationProbability, double crossoverProbability,
             CrossoverType crossoverType)
@@ -53,6 +55,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             CrossoverType = crossoverType;
 
             _population = new List<List<int>>();
+
+            _random = new Random();
 
             bestFitnessesInPopulations = new List<double>();
             worstFitnessesInPopulations = new List<double>();
@@ -70,7 +74,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             List<int> individualAfterCrossover = null;
             List<int> firstChildAfterCrossover;
             List<int> secondChildAfterCrossover;
-            Random random = new Random();
+            //Random random = new Random();
             List<List<int>> selection = null;
 
             for (int iteration = 0; iteration < NumberOfRuns; iteration++)
@@ -90,13 +94,13 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
                         if (selection.Count % 2 != 0)
                         {
-                            selection.Add(_population[random.Next(0, _population.Count)]);
+                            selection.Add(_population[_random.Next(0, _population.Count)]);
                         }
 
                         for (int j = 0; j < selection.Count; j += 2)
                         {
 
-                            if (random.NextDouble() < CrossoverProbability)
+                            if (_random.NextDouble() < CrossoverProbability)
                             {
                                 (firstChildAfterCrossover, secondChildAfterCrossover) = cycleCrossover(selection[j], selection[j + 1]);
 
@@ -112,13 +116,13 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                             //swapMutation(selection[j]);
                             //swapMutation(selection[j + 1]);
 
-                            if (random.NextDouble() < MutationProbability)
+                            if (_random.NextDouble() < MutationProbability)
                             {
                                 inversionMutation(firstChildAfterCrossover);
                                 repairIndividual(firstChildAfterCrossover);
                             }
 
-                            if (random.NextDouble() < MutationProbability)
+                            if (_random.NextDouble() < MutationProbability)
                             {
                                 inversionMutation(secondChildAfterCrossover);
                                 repairIndividual(secondChildAfterCrossover);
@@ -148,7 +152,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
                         for (int j = 0; j < selection.Count(); j += 2)
                         {                        
-                            if (random.NextDouble() < CrossoverProbability)
+                            if (_random.NextDouble() < CrossoverProbability)
                             {
                                 individualAfterCrossover = orderedCrossover(selection[j], selection[j + 1]);
                                 repairIndividual(individualAfterCrossover);
@@ -158,7 +162,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                                 individualAfterCrossover = new List<int>(selection[j]);
                             }
 
-                            if (random.NextDouble() < MutationProbability)
+                            if (_random.NextDouble() < MutationProbability)
                             {
                                 inversionMutation(individualAfterCrossover);
                                 //swapMutation(individualAfterCrossover);
@@ -236,10 +240,10 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         private List<List<int>> tournamentSelection(int tournamentSize, int numberOfIndividualsToSelect)
         {
             var winnersOfTournaments = new List<List<int>>(numberOfIndividualsToSelect);
-            Random random = new Random();
+            //Random random = new Random();
             for (int i = 0; i < numberOfIndividualsToSelect; i++)
             {
-                var tournamentResult = _population.OrderBy(_ => random.Next())
+                var tournamentResult = _population.OrderBy(_ => _random.Next())
                     .Take(tournamentSize)
                     .Select(i => new { solution = i, fitness = calculateFitness(i) })
                     .OrderBy(x => x.fitness)
@@ -318,7 +322,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         private void swapMutation(List<int> individual)
         {
-            Random random = new Random();
+            //Random random = new Random();
             int randomIndex = 0;
             int secondRandomIndex;
             int tempCityNode;
@@ -327,9 +331,9 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             
             for (int index = 0; index < individual.Count(); index++)
             {
-                if (random.NextDouble() < MutationProbability)
+                if (_random.NextDouble() < MutationProbability)
                 {
-                    randomIndex = random.Next(0, individual.Count());
+                    randomIndex = _random.Next(0, individual.Count());
                     tempCityNode = individual[randomIndex];
                     individual[randomIndex] = individual[index];
                     individual[index] = tempCityNode;
@@ -342,14 +346,14 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         private void inversionMutation(List<int> individual)
         {
             List<int> inversionPart;
-            Random random = new Random();
+            //Random random = new Random();
             int firstRandomIndex;
             int secondRandomIndex;
 
             individual.RemoveAll(n => n == DepotNode);
             
-            firstRandomIndex = random.Next(0, individual.Count() - 1);
-            secondRandomIndex = random.Next(firstRandomIndex + 1, individual.Count());
+            firstRandomIndex = _random.Next(0, individual.Count() - 1);
+            secondRandomIndex = _random.Next(firstRandomIndex + 1, individual.Count());
 
             inversionPart = individual.GetRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
             individual.RemoveRange(firstRandomIndex, secondRandomIndex - firstRandomIndex + 1);
@@ -366,9 +370,9 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             secondParent.RemoveAll(n => n == DepotNode);
 
             List<int> child = new List<int>(new int[firstParent.Count]);
-            Random random = new Random();
-            int leftBorderIndex = random.Next(0, firstParent.Count() - 1);
-            int rightBorderIndex = random.Next(leftBorderIndex, firstParent.Count());
+            //Random random = new Random();
+            int leftBorderIndex = _random.Next(0, firstParent.Count() - 1);
+            int rightBorderIndex = _random.Next(leftBorderIndex, firstParent.Count());
             int positionIndexSecondParent = 0;
 
             child.RemoveRange(leftBorderIndex, rightBorderIndex - leftBorderIndex + 1);
