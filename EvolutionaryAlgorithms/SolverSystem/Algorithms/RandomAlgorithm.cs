@@ -39,7 +39,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             for (int counterOfRuns = 0; counterOfRuns < NumberOfRuns; counterOfRuns++)
             {
                 individual = generateIndividual();
-                fitness = calculateFitness(individual);
+                fitness = (int) calculateFitness(individual);
                 fitnesses.Add(fitness);
 
                 if (fitness < BestFitness)

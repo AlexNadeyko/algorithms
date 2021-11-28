@@ -120,7 +120,7 @@ namespace EvolutionaryAlgorithms.SolverSystem
             File.WriteAllText(strFilePath, sbOutput.ToString());
         }
 
-        private void writeGeneticBestFitnesses(List<double> fitnesses, string nameOfProblem)
+        private void writeGeneticBestFitnesses(List<int> fitnesses, string nameOfProblem)
         {
             //string information = String.Format("{0}_{1}", AlgorithmType.GENETIC, nameOfProblem);
             string information = String.Format("{0}_{1}_{2}", AlgorithmType.GENETIC, counterOfTestRun, nameOfProblem);
@@ -146,8 +146,10 @@ namespace EvolutionaryAlgorithms.SolverSystem
         private void writeGeneticDataForPlot(List<double> bestFintesses, List<double> worstFintesses, List<double> averageFitnesses, string nameOfProblem)
         {
             
-            string information = String.Format("{0}_{1}", AlgorithmType.GENETIC + "_plot", nameOfProblem);
-            string strFilePath = String.Format("{0}/{1}.csv", PATH, information);
+            string information = String.Format("{0}_{1}_{2}", AlgorithmType.GENETIC + "_plot", counterOfTestRun,  nameOfProblem);
+            string strFilePath = String.Format("{0}/{1}.csv", PATH + GENETIC_DATA_FOLDER, information);
+            
+           
 
             StringBuilder sbOutput = new StringBuilder();
             sbOutput.AppendLine("best fitness, worst fitness, average fitness");

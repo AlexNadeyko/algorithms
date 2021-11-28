@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EvolutionaryAlgorithms.SolverSystem.Configurations.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,12 +7,6 @@ using System.Threading.Tasks;
 
 namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 {
-    enum CrossoverType
-    {
-        CYCLE_CROSSOVER,
-        ORDERED_CROSSOVER
-    }
-
     class GeneticAlgorithm : Algorithm
     {
         public int NumberOfRuns
@@ -32,7 +27,13 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         public CrossoverType CrossoverType
         { get; private set; }
-        public List<double> BestFitnesses
+
+        public MutationType MutationType { get; private set; }
+
+        public SelectionType SelectionType { get; private set; }
+        public double TournamentSizePercentage { get; private set; }
+
+        public List<int> BestFitnesses
         { get; set; }
 
         public List<double> bestFitnessesInPopulations;
@@ -44,8 +45,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         private readonly Random _random;
 
 
-        public GeneticAlgorithm(int numberOfRuns, int numberOfPopulations, int numberOfIndividuals, double mutationProbability, double crossoverProbability,
-            CrossoverType crossoverType)
+        public GeneticAlgorithm(int numberOfRuns, int numberOfPopulations, int numberOfIndividuals, CrossoverType crossoverType, double crossoverProbability,
+            MutationType mutationType, double mutationProbability, SelectionType selectionType, double tournamentSizePercentage = 0)
         {
             NumberOfRuns = numberOfRuns;
             NumberOfPopulations = numberOfPopulations;
@@ -53,6 +54,9 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             MutationProbability = mutationProbability;
             CrossoverProbability = crossoverProbability;
             CrossoverType = crossoverType;
+            MutationType = mutationType;
+            SelectionType = selectionType;
+            TournamentSizePercentage = tournamentSizePercentage;
 
             _population = new List<List<int>>();
 
@@ -61,7 +65,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             bestFitnessesInPopulations = new List<double>();
             worstFitnessesInPopulations = new List<double>();
             averageFitnessesInPopulations = new List<double>();
-            BestFitnesses = new List<double>();
+            BestFitnesses = new List<int>();
         }
 
         public override void run()
@@ -90,7 +94,14 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                 {
                     while (numberOfPopulations > 0)
                     {
-                        selection = tournamentSelection(5, _population.Count);
+                        if (SelectionType == SelectionType.ROULETTE)
+                        {
+                            selection = rouletteSelection(_population.Count);
+                        }
+                        else 
+                        {
+                            selection = tournamentSelection((int)(NumberOfIndividuals * TournamentSizePercentage), _population.Count);
+                        }
 
                         if (selection.Count % 2 != 0)
                         {
@@ -113,18 +124,25 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                                 secondChildAfterCrossover = new List<int>(selection[j + 1]);
                             }
 
-                            //swapMutation(selection[j]);
-                            //swapMutation(selection[j + 1]);
-
-                            if (_random.NextDouble() < MutationProbability)
+                            if (MutationType == MutationType.INVERSION)
                             {
-                                inversionMutation(firstChildAfterCrossover);
-                                repairIndividual(firstChildAfterCrossover);
+                                if (_random.NextDouble() < MutationProbability)
+                                {
+                                    inversionMutation(firstChildAfterCrossover);
+                                    repairIndividual(firstChildAfterCrossover);
+                                }
+
+                                if (_random.NextDouble() < MutationProbability)
+                                {
+                                    inversionMutation(secondChildAfterCrossover);
+                                    repairIndividual(secondChildAfterCrossover);
+                                }
                             }
-
-                            if (_random.NextDouble() < MutationProbability)
+                            else 
                             {
-                                inversionMutation(secondChildAfterCrossover);
+                                swapMutation(firstChildAfterCrossover);
+                                repairIndividual(firstChildAfterCrossover);
+                                swapMutation(secondChildAfterCrossover);
                                 repairIndividual(secondChildAfterCrossover);
                             }
 
@@ -137,7 +155,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                         _population.Clear();
                         _population.AddRange(newPopulation);
                         newPopulation.Clear();
-                        
+
                         evaluateIndividuals();
 
                         numberOfPopulations--;
@@ -148,10 +166,23 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                     while (numberOfPopulations > 0)
                     {
                         //List<int> selection = rouletteSelection();
-                        selection = tournamentSelection(5, _population.Count * 2);
+
+                        if (SelectionType == SelectionType.ROULETTE)
+                        {
+                            selection = rouletteSelection(_population.Count * 2);
+                        }
+                        else
+                        {
+                            selection = tournamentSelection((int)(NumberOfIndividuals * TournamentSizePercentage), _population.Count * 2);
+                        }
+
 
                         for (int j = 0; j < selection.Count(); j += 2)
-                        {                        
+                        {
+
+
+
+
                             if (_random.NextDouble() < CrossoverProbability)
                             {
                                 individualAfterCrossover = orderedCrossover(selection[j], selection[j + 1]);
@@ -162,10 +193,19 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                                 individualAfterCrossover = new List<int>(selection[j]);
                             }
 
-                            if (_random.NextDouble() < MutationProbability)
+                            if (MutationType == MutationType.INVERSION)
                             {
-                                inversionMutation(individualAfterCrossover);
-                                //swapMutation(individualAfterCrossover);
+
+                                if (_random.NextDouble() < MutationProbability)
+                                {
+                                    inversionMutation(individualAfterCrossover);
+                                    repairIndividual(individualAfterCrossover);
+                                }
+                                
+                            }
+                            else
+                            {
+                                swapMutation(individualAfterCrossover);
                                 repairIndividual(individualAfterCrossover);
                             }
 
@@ -177,15 +217,118 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                         newPopulation.Clear();
 
                         evaluateIndividuals();
-                         
+
                         numberOfPopulations--;
                     }
                 }
 
+
+                ///////
+                ///
+
+                //if (CrossoverType == CrossoverType.CYCLE_CROSSOVER)
+                //{
+                //    while (numberOfPopulations > 0)
+                //    {
+                //        selection = tournamentSelection(5, _population.Count);
+
+                //        if (selection.Count % 2 != 0)
+                //        {
+                //            selection.Add(_population[_random.Next(0, _population.Count)]);
+                //        }
+
+                //        for (int j = 0; j < selection.Count; j += 2)
+                //        {
+
+                //            if (_random.NextDouble() < CrossoverProbability)
+                //            {
+                //                (firstChildAfterCrossover, secondChildAfterCrossover) = cycleCrossover(selection[j], selection[j + 1]);
+
+                //                repairIndividual(firstChildAfterCrossover);
+                //                repairIndividual(secondChildAfterCrossover);
+                //            }
+                //            else
+                //            {
+                //                firstChildAfterCrossover = new List<int>(selection[j]);
+                //                secondChildAfterCrossover = new List<int>(selection[j + 1]);
+                //            }
+
+                //            //swapMutation(selection[j]);
+                //            //swapMutation(selection[j + 1]);
+
+                //            if (_random.NextDouble() < MutationProbability)
+                //            {
+                //                inversionMutation(firstChildAfterCrossover);
+                //                repairIndividual(firstChildAfterCrossover);
+                //            }
+
+                //            if (_random.NextDouble() < MutationProbability)
+                //            {
+                //                inversionMutation(secondChildAfterCrossover);
+                //                repairIndividual(secondChildAfterCrossover);
+                //            }
+
+                //            newPopulation.Add(firstChildAfterCrossover);
+                //            newPopulation.Add(secondChildAfterCrossover);
+                //        }
+
+                //        newPopulation[newPopulation.Count - 1] = new List<int>(bestSolution);
+
+                //        _population.Clear();
+                //        _population.AddRange(newPopulation);
+                //        newPopulation.Clear();
+
+                //        evaluateIndividuals();
+
+                //        numberOfPopulations--;
+                //    }
+                //}
+                //else
+                //{
+                //    while (numberOfPopulations > 0)
+                //    {
+                //        //List<int> selection = rouletteSelection();
+                //        selection = tournamentSelection(5, _population.Count * 2);
+
+                //        for (int j = 0; j < selection.Count(); j += 2)
+                //        {                        
+                //            if (_random.NextDouble() < CrossoverProbability)
+                //            {
+                //                individualAfterCrossover = orderedCrossover(selection[j], selection[j + 1]);
+                //                repairIndividual(individualAfterCrossover);
+                //            }
+                //            else
+                //            {
+                //                individualAfterCrossover = new List<int>(selection[j]);
+                //            }
+
+                //            if (_random.NextDouble() < MutationProbability)
+                //            {
+                //                inversionMutation(individualAfterCrossover);
+                //                //swapMutation(individualAfterCrossover);
+                //                repairIndividual(individualAfterCrossover);
+                //            }
+
+                //            newPopulation.Add(individualAfterCrossover);
+                //        }
+
+                //        _population.Clear();
+                //        _population.AddRange(newPopulation);
+                //        newPopulation.Clear();
+
+                //        evaluateIndividuals();
+
+                //        numberOfPopulations--;
+                //    }
+                //}
+
+
+                ///////////////////////////
+
                 //displaySolution();
                 BestFitnesses.Add(BestFitness);
 
-                Console.WriteLine(counter);
+                //Console.WriteLine(counter);
                 newPopulation.Clear();
                 _population.Clear();
                 //bestFitnessesInPopulations.Clear();
@@ -211,7 +354,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
             foreach (List<int> individual in _population)
             {
-                fitness = calculateFitness(individual);
+                fitness = (int) calculateFitness(individual);
                 sumFitness += fitness;
 
                 if (fitness < bestLocalFintess)
@@ -293,8 +436,9 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             //return winnersOfTournaments;
         }
 
-        private List<int> rouletteSelection()
+        private List<List<int>> rouletteSelection(int numberOfIndividualsToSelect)
         {
+            var selectedIndividuals = new List<List<int>>(numberOfIndividualsToSelect);
             double totalFitness = 0;
             List<(double, double)> probabilitiesBorders = new List<(double, double)>();
             double leftBorder = 0;
@@ -303,7 +447,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             double randomNumber = 0;
             int indexOfMatchedIndividual;
 
-            totalFitness = _population.Select(i => 1 / calculateFitness(i)).Sum();
+            //totalFitness = _population.Select(i => 1 / calculateFitness(i)).Sum();
+            totalFitness = _population.Sum(i => 1 / calculateFitness(i));
             rightBorder = (1 / calculateFitness(_population[0])) / totalFitness;
 
             for (int i = 0; i < _population.Count() - 1; i++)
@@ -314,10 +459,15 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             }
 
             probabilitiesBorders.Add((leftBorder, 1));
-            randomNumber = random.NextDouble();
-            indexOfMatchedIndividual = probabilitiesBorders.FindIndex(b => randomNumber > b.Item1 && randomNumber <= b.Item2);
 
-            return _population[indexOfMatchedIndividual];
+            for (int i = 0; i < numberOfIndividualsToSelect; i++)
+            {
+                randomNumber = random.NextDouble();
+                indexOfMatchedIndividual = probabilitiesBorders.FindIndex(b => randomNumber > b.Item1 && randomNumber <= b.Item2);
+                selectedIndividuals.Add(_population[indexOfMatchedIndividual]);
+            }
+
+            return selectedIndividuals;
         }
 
         private void swapMutation(List<int> individual)
@@ -530,6 +680,14 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             }
 
             individual.Add(DepotNode);
+        }
+
+        public string getConfigurationData()
+        {
+            return "GA//Number of populations=" + NumberOfPopulations + "; number of individuals=" + NumberOfIndividuals + "; Selection type="
+                + SelectionType + (SelectionType == SelectionType.TOURNAMENT ? ";tournament size=" + TournamentSizePercentage : "") + 
+                "; Crossover type=" + CrossoverType + "; crossober probability=" + CrossoverProbability + "; MutationType=" + MutationType +
+                "; mutationProbability=" + MutationProbability;
         }
     }
 }

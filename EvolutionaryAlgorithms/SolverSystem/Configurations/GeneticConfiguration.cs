@@ -1,4 +1,5 @@
 ﻿using EvolutionaryAlgorithms.SolverSystem.Algorithms;
+using EvolutionaryAlgorithms.SolverSystem.Configurations.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,8 +28,18 @@ namespace EvolutionaryAlgorithms.SolverSystem.Configurations
         public double CrossoverProbability
         { get; private set; }
 
+        public MutationType MutationType
+        { get; private set; }
+
+        public SelectionType SelectionType
+        { get; private set; }
+
+        public double TournamentSizePercentage
+        { get; private set; }
+
         public GeneticConfiguration(AlgorithmType algorithmType, int numberOfAlgorithmRuns, int numberOfPopulations, int numberOfIndividuals,
-            CrossoverType crossoverType, double crossoverProbability, double mutationProbaility) : base(algorithmType)
+            CrossoverType crossoverType, double crossoverProbability, MutationType mutationType, double mutationProbaility,
+            SelectionType selectionType, double tournamentSizePercentage = 0) : base(algorithmType)
         {
             NumberOfAlgorithmRuns = numberOfAlgorithmRuns;
             NumberOfPopulations = numberOfPopulations;
@@ -36,6 +47,9 @@ namespace EvolutionaryAlgorithms.SolverSystem.Configurations
             CrossoverType = crossoverType;
             CrossoverProbability = crossoverProbability;
             MutationProbaility = mutationProbaility;
+            MutationType = mutationType;
+            SelectionType = selectionType;
+            TournamentSizePercentage = tournamentSizePercentage;
         }
 
     }

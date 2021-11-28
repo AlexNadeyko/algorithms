@@ -17,7 +17,7 @@ namespace EvolutionaryAlgorithms.SolverSystem
     public abstract class Algorithm
     {
 
-        public int DepotNode 
+        public int DepotNode
         { get; set; }
 
         public int[,] DestinationMatrix
@@ -27,11 +27,11 @@ namespace EvolutionaryAlgorithms.SolverSystem
         { get; set; }
 
         public int[] DemandsOfNodes
-        { get;  set; }
+        { get; set; }
 
         public int Capacity
         { get; set; }
-        
+
         public int Dimension
         { get; set; }
         public string NameOfProblem
@@ -41,21 +41,21 @@ namespace EvolutionaryAlgorithms.SolverSystem
 
         protected int bestFitness = int.MaxValue;
         public int BestFitness
-        { 
+        {
             get { return bestFitness; }
-            protected set { bestFitness = value; } 
+            protected set { bestFitness = value; }
         }
-        
+
         //public List<double> BestFitnesses;
 
-        protected Algorithm() 
+        protected Algorithm()
         {
             //BestFitnesses = new List<double>();
         }
 
         public abstract void run();
 
-        public int calculateFitness(List<int> individual)
+        public double calculateFitness(List<int> individual)
         {
             int fitness = 0;
 
@@ -101,7 +101,7 @@ namespace EvolutionaryAlgorithms.SolverSystem
                     actualCargo += DemandsOfNodes[nextNodeToVisit];
                     citiesToVisit.Remove(nextNodeToVisit);
                 }
-                else 
+                else
                 {
                     individual.Add(DepotNode);
                     actualCargo = 0;
@@ -118,7 +118,7 @@ namespace EvolutionaryAlgorithms.SolverSystem
 
             Console.WriteLine($"Result for problem - {NameOfProblem}");
 
-            for(int nodeIndex = 0; nodeIndex < individual.Count() - 1; nodeIndex++)
+            for (int nodeIndex = 0; nodeIndex < individual.Count() - 1; nodeIndex++)
             {
                 if (individual[nodeIndex] == DepotNode)
                 {
@@ -138,5 +138,7 @@ namespace EvolutionaryAlgorithms.SolverSystem
             Console.WriteLine($"Fitness: {BestFitness}");
             Console.WriteLine("#########################");
         }
+
+        
     }
 }

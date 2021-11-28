@@ -2,6 +2,7 @@
 using EvolutionaryAlgorithms.SolverSystem.Configurations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,20 +15,24 @@ namespace EvolutionaryAlgorithms.SolverSystem
         public String[] PathesToProblems
         { get; set; }
 
-        public SolverConfiguration[] Configurations
+        public List<SolverConfiguration> Configurations
         { get; set; }
 
         private ProblemLoader _loader;
         private DataWriter _writer;
+        private DataAnalyzer _dataAnalyzer;
 
         public ProblemSolver()
         {
             _loader = new ProblemLoader();
             _writer = new DataWriter();
+            _dataAnalyzer = new DataAnalyzer();
         }
 
         public void run()
         {
+            int counter = 0;
+
             int[] cityToVisitNodes;
             int[,] destinationMatrix;
             int depotNode;
@@ -36,6 +41,8 @@ namespace EvolutionaryAlgorithms.SolverSystem
             foreach (string path in PathesToProblems)
             {
                 _loader.loadProblem(path);
+
+                _dataAnalyzer.ProblemName = path;
 
                 foreach (SolverConfiguration configuration in Configurations)
                 {   
@@ -52,8 +59,14 @@ namespace EvolutionaryAlgorithms.SolverSystem
 
                     algorithm.run();
 
+                    _dataAnalyzer.readData(algorithm);
+
+
                     _writer.writeOutputDataFromAlgorithm(algorithm);
 
+
+                    Console.WriteLine(counter);
+                    counter++;
                     //GeneticAlgorithm geneticAlgorithm = (GeneticAlgorithm)algorithm;
                     //writeDateForPlot(geneticAlgorithm.bestFitnessesInPopulations, geneticAlgorithm.worstFitnessesInPopulations, geneticAlgorithm.averageFitnessesInPopulations);
 
@@ -61,6 +74,9 @@ namespace EvolutionaryAlgorithms.SolverSystem
                     //fix
                     //writeSolutions(configuration.Algorithm, algorithm.BestFitnesses, algorithm.WorstFitnesses, algorithm.AverageFitness, algorithm.StandardDeviation);          
                 }
+
+                _dataAnalyzer.displayAnalyzedData();
+                _dataAnalyzer.clearData();
             }
         }
 
@@ -133,8 +149,10 @@ namespace EvolutionaryAlgorithms.SolverSystem
 
                 case AlgorithmType.GENETIC:
                     GeneticConfiguration geneticConfig = (GeneticConfiguration) configuration;
-                    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(geneticConfig.NumberOfAlgorithmRuns, geneticConfig.NumberOfPopulations,
-                        geneticConfig.NumberOfIndividuals, geneticConfig.MutationProbaility, geneticConfig.CrossoverProbability, geneticConfig.CrossoverType);
+                    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(geneticConfig.NumberOfAlgorithmRuns,
+                        geneticConfig.NumberOfPopulations, geneticConfig.NumberOfIndividuals, geneticConfig.CrossoverType,
+                         geneticConfig.CrossoverProbability, geneticConfig.MutationType, geneticConfig.MutationProbaility,
+                         geneticConfig.SelectionType, geneticConfig.TournamentSizePercentage);
                     algorithm = geneticAlgorithm;
 
                     break;
@@ -142,15 +160,17 @@ namespace EvolutionaryAlgorithms.SolverSystem
                 case AlgorithmType.TABU_SEARCH:
                     TabuConfiguration tabuConfiguration = (TabuConfiguration) configuration;
                     TabuSearchAlgorithm tabuSearchAlgorithm = new TabuSearchAlgorithm(tabuConfiguration.NumberOfAlgorithmRuns, 
-                        tabuConfiguration.NumberOfIterations, tabuConfiguration.SizeOfTabuList, tabuConfiguration.NumberOfNeighbors);
+                        tabuConfiguration.NumberOfIterations, tabuConfiguration.SizeOfTabuList, tabuConfiguration.NumberOfNeighbors,
+                        tabuConfiguration.MutationType, tabuConfiguration.SwapProbability);
                     algorithm = tabuSearchAlgorithm;
 
                     break;
 
                 case AlgorithmType.SIMULATED_ANNEALING:
                     SimulatedAnnealingConfiguration simulatedAnnealingConfiguration = (SimulatedAnnealingConfiguration)configuration;
-                    SimulatedAnnealingAlgorithm simulatedAnnealingAlgorithm = new SimulatedAnnealingAlgorithm(simulatedAnnealingConfiguration.InitialTemperature,
-                        simulatedAnnealingConfiguration.NumberOfIterations, simulatedAnnealingConfiguration.NumberOfRuns);
+                    SimulatedAnnealingAlgorithm simulatedAnnealingAlgorithm = new SimulatedAnnealingAlgorithm(simulatedAnnealingConfiguration.InitialTemperaturePercent,
+                        simulatedAnnealingConfiguration.NumberOfIterations, simulatedAnnealingConfiguration.NumberOfRuns, simulatedAnnealingConfiguration.MutationType,
+                        simulatedAnnealingConfiguration.SwapProbability);
                     algorithm = simulatedAnnealingAlgorithm;
 
                     break;

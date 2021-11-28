@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EvolutionaryAlgorithms.SolverSystem.Configurations.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,12 +11,15 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
     {
         private readonly double _initialTemperature;
         private readonly int _numberOfIterations;
+        private readonly MutationType _mutationType;
+        private readonly double _swapProbability;
         private int _numberOfRuns;
         private readonly double _annealingFactor;
         private double _currentTemperature;
         private List<int> _currentSolution;
         private int _currentSolutionFitness;
         private readonly Random _random;
+        private readonly double _initialtemperaturePercentage;
 
         public List<int> BestFitnesses
         { get; set; }
@@ -23,13 +27,19 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         public List<int> bestFitnessesInPopulations;
         public List<int> currentFitnessesInPopulations;
 
-        public SimulatedAnnealingAlgorithm(double initialTemperature, int numberOfIterations, int numberOfRuns)
+        public SimulatedAnnealingAlgorithm(double initialTemperaturePercent, int numberOfIterations, int numberOfRuns,
+            MutationType mutationType, double swapProbability = 0)
         {
-            _initialTemperature = initialTemperature;
+            //_initialTemperature = numberOfIterations * initialTemperaturePercent;
+            _initialTemperature = initialTemperaturePercent;
             _numberOfIterations = numberOfIterations;
             _numberOfRuns = numberOfRuns;
             _annealingFactor = _initialTemperature / _numberOfIterations;
-            
+            _mutationType = mutationType;
+            _swapProbability = swapProbability;
+
+            _initialtemperaturePercentage = initialTemperaturePercent;
+
             _random = new Random();
             BestFitnesses = new List<int>();
 
@@ -46,7 +56,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                 _currentTemperature = _initialTemperature;
 
                 _currentSolution = generateIndividual();
-                _currentSolutionFitness = calculateFitness(_currentSolution);
+                _currentSolutionFitness = (int) calculateFitness(_currentSolution);
                 BestFitness = _currentSolutionFitness;
                 bestSolution = new List<int>(_currentSolution);
 
@@ -56,11 +66,19 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                 for (int indexOfIteration = 0; indexOfIteration < _numberOfIterations; indexOfIteration++)
                 {
                     var mutant = new List<int>(_currentSolution);
-                    inversion(mutant);
-                    //swapMutation(mutant);
+
+                    if (_mutationType == MutationType.INVERSION)
+                    {
+                        inversion(mutant);
+                    }
+                    else
+                    {
+                        swapMutation(mutant);
+                    }
+                    
                     repairSolution(mutant);
 
-                    var mutantFitness = calculateFitness(mutant);
+                    var mutantFitness = (int) calculateFitness(mutant);
 
                     if (mutantFitness < _currentSolutionFitness)
                     {
@@ -86,7 +104,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                     currentFitnessesInPopulations.Add(_currentSolutionFitness);
                 }
                
-                Console.WriteLine(counter);
+                //Console.WriteLine(counter);
                 counter++;
 
                 BestFitnesses.Add(BestFitness);
@@ -173,7 +191,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
             for (int index = 0; index < solution.Count(); index++)
             {
-                if (_random.NextDouble() < 0.01)
+                if (_random.NextDouble() < _swapProbability)
                 {
                     randomIndex = _random.Next(0, solution.Count());
                     tempCityNode = solution[randomIndex];
@@ -208,6 +226,14 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             }
 
             solution.Add(DepotNode);
+        }
+
+        //double initialTemperature, int numberOfIterations,
+        public string getConfigurationData()
+        {
+            return "SA//Number of iterations=" + _numberOfIterations + "; initial temperature=" + _initialtemperaturePercentage
+                + ";type of mutation=" + _mutationType + (_mutationType == MutationType.SWAP ? "swap probability=" + _swapProbability : "");
+
         }
     }
 }

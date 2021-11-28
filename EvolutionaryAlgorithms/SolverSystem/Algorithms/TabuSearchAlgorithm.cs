@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EvolutionaryAlgorithms.SolverSystem.Configurations.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +16,13 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         private readonly int _numberOfIterations;
 
-        private readonly int _tabuListSize;
+        private readonly double _tabuListSize; // in procent
 
         private readonly int _numberOfNeighbors;
+
+        private readonly MutationType _mutationType;
+
+        private readonly double _swapProbability;
 
         public List<int> bestFitnessesInPopulations;
 
@@ -33,12 +38,15 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         private readonly Random _random;
 
-        public TabuSearchAlgorithm(int numberOfRuns, int numberOfIterations, int tabuListSize, int numberOfNeighbors)
+        public TabuSearchAlgorithm(int numberOfRuns, int numberOfIterations, double tabuListSize, int numberOfNeighbors,
+            MutationType mutationType, double swapProbability = 0)
         {
             NumberOfRuns = numberOfRuns;
             _numberOfIterations = numberOfIterations;
             _tabuListSize = tabuListSize;
             _numberOfNeighbors = numberOfNeighbors;
+            _mutationType = mutationType;
+            _swapProbability = swapProbability;
 
             BestFitnesses = new List<int>();
 
@@ -54,7 +62,8 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         public override void run()
         {
             List<int> currentSolution;
-            List<string> tabuList = new List<string>(_tabuListSize);
+
+            List<string> tabuList = new List<string>((int)(_numberOfIterations * _tabuListSize));
             List<List<int>> neighbors;
             List<int> bestNeighbor;
             double bestNeighborFitness;
@@ -64,7 +73,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                 currentSolution = generateIndividual();
                 //evaluateSolution(currentSolution);
                 tabuList.Add(string.Join(",", currentSolution));
-                BestFitness = calculateFitness(currentSolution);
+                BestFitness = (int)calculateFitness(currentSolution);
 
                 bestFitnessesInPopulations.Add(BestFitness);
                 currentFitnessesInPopulations.Add(BestFitness);
@@ -82,7 +91,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
                         .FirstOrDefault();
 
                     currentSolution ??= neighbors[0];
-                    var currentFitness = calculateFitness(currentSolution);
+                    var currentFitness = (int) calculateFitness(currentSolution);
 
                     if (currentFitness < BestFitness)
                     {
@@ -92,6 +101,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
                     tabuList.Add(string.Join(",", currentSolution));
 
+                    //fix
                     if (tabuList.Count > _tabuListSize)
                     {
                         tabuList.RemoveAt(0);
@@ -134,7 +144,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
         private void evaluateSolution(List<int> solution)
         {
-            int fitness = calculateFitness(solution);
+            int fitness =  (int) calculateFitness(solution);
 
             if(fitness < BestFitness)    
             {
@@ -147,15 +157,29 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
         {
             List<List<int>> neighbors = new List<List<int>>(_numberOfNeighbors);
 
-            for (int i = 0; i < _numberOfNeighbors; i++)
+            if (_mutationType == MutationType.INVERSION)
             {
-                var currentSolutionClone = new List<int>(currentSolution);
+                for (int i = 0; i < _numberOfNeighbors; i++)
+                {
+                    var currentSolutionClone = new List<int>(currentSolution);
 
-                inversion(currentSolutionClone);
-                //swapMutation(currentSolutionClone);
+                    inversion(currentSolutionClone);
 
-                repairSolution(currentSolutionClone);
-                neighbors.Add(currentSolutionClone);
+                    repairSolution(currentSolutionClone);
+                    neighbors.Add(currentSolutionClone);
+                }
+            }
+            else 
+            {
+                for (int i = 0; i < _numberOfNeighbors; i++)
+                {
+                    var currentSolutionClone = new List<int>(currentSolution);
+                    
+                    swapMutation(currentSolutionClone);
+
+                    repairSolution(currentSolutionClone);
+                    neighbors.Add(currentSolutionClone);
+                }
             }
 
             return neighbors;
@@ -218,7 +242,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
             foreach (List<int> neighbor in neighbors)
             {
-                fitness = calculateFitness(neighbor);
+                fitness = (int) calculateFitness(neighbor);
 
                 totalFitness += fitness;
 
@@ -291,7 +315,7 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
 
             for (int index = 0; index < solution.Count(); index++)
             {
-                if (_random.NextDouble() < 0.04)
+                if (_random.NextDouble() < _swapProbability)
                 {
                     randomIndex = _random.Next(0, solution.Count());
                     tempCityNode = solution[randomIndex];
@@ -326,6 +350,15 @@ namespace EvolutionaryAlgorithms.SolverSystem.Algorithms
             }
 
             solution.Add(DepotNode);
+        }
+
+        //int numberOfIterations, int tabuListSize, int numberOfNeighbors
+        public string getConfigurationData()
+        {
+            return "TS//Number of iterations=" + _numberOfIterations + "; tabu list size=" + _tabuListSize +
+                "; number of neighbors =" + _numberOfNeighbors + ";type of mutation=" + _mutationType 
+                + (_mutationType == MutationType.SWAP ? "swap probability=" + _swapProbability : "");
+                
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EvolutionaryAlgorithms.SolverSystem.Configurations.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,19 +15,25 @@ namespace EvolutionaryAlgorithms.SolverSystem.Configurations
         public int NumberOfIterations
         { get; private set; }
         
-        public int SizeOfTabuList
+        public double SizeOfTabuList
         { get; private set; }
 
         public int NumberOfNeighbors
         { get; private set; }
 
-        public TabuConfiguration(AlgorithmType algorithmType, int numberOfAlgorithmRuns, int numberOfIterations, int sizeOfTabuList,
-            int numberOfNeighbors) : base(algorithmType)
+        public MutationType MutationType { get; private set; }
+
+        public double SwapProbability { get; private set; }
+
+        public TabuConfiguration(AlgorithmType algorithmType, int numberOfAlgorithmRuns, int numberOfIterations, double sizeOfTabuList,
+            int numberOfNeighbors, MutationType mutationType, double swapProbability = 0) : base(algorithmType)
         {
             NumberOfAlgorithmRuns = numberOfAlgorithmRuns;
             NumberOfIterations = numberOfIterations;
             SizeOfTabuList = sizeOfTabuList;
             NumberOfNeighbors = numberOfNeighbors;
+            MutationType = mutationType;
+            SwapProbability = swapProbability;
         }
 
     }
